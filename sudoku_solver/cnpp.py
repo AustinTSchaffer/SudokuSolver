@@ -126,4 +126,9 @@ class NumberPlacementPuzzle(object):
     
     @property
     def solved(self):
+        """
+        Returns true if all of the cells contained in the puzzle have a truthy
+        value, which indicates that there is no longer any uncertainty in the
+        puzzle.
+        """
         return all(map(lambda cell: cell.value, self._cells))
