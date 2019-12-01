@@ -1,4 +1,4 @@
-from sudoku_solver import cnpp
+from . import cnpp
 
 class NumberPlacementPuzzleSolver(object):
     def __init__(self, puzzle: cnpp.NumberPlacementPuzzle):
