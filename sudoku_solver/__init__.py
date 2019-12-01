@@ -6,7 +6,7 @@ follow the same rules.
 
 """
 
-from number_placement_puzzles import (
+from sudoku_solver import (
     cnpp,
     cnpp_solver,
     sudoku,

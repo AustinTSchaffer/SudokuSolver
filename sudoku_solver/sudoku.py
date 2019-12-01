@@ -2,7 +2,7 @@ from typing import Optional, List
 from collections import defaultdict
 import os
 
-from number_placement_puzzles import cnpp
+from . import cnpp
 
 
 class SudokuCell(cnpp.Cell):
