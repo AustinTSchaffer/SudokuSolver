@@ -64,21 +64,19 @@ class Cell(object):
         """
         return set(self._potential_values)
 
-    def remove_values(self, values: Union[Hashable, Collection[Hashable]]):
+    def remove_value(self, value: Hashable):
         """
-        Removes a value or a set of values from the set of potential values for
-        this cell.
+        Removes a value the set of potential values for this cell.
         """
-        def safe_remove(value):
+        self.remove_values([value])
+
+    def remove_values(self, values: Collection[Hashable]):
+        """
+        Removes a set of values from the set of potential values for this cell.
+        """
+        for value in values:
             if value in self._potential_values:
                 self._potential_values.remove(value)
-
-        if type(values) is Hashable:
-            safe_remove(values)
-            return
-
-        for value in values:
-            safe_remove(value)
 
     def __eq__(self, other) -> bool:
         return (
@@ -125,3 +123,7 @@ class NumberPlacementPuzzle(object):
             self._groups.add(group)
             for cell in group:
                 self._cells.add(cell)
+    
+    @property
+    def solved(self):
+        return all(map(lambda cell: cell.value, self._cells))
