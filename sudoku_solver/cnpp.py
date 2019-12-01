@@ -8,12 +8,6 @@ there are other variants of the game that follow the same rules.
 
 from typing import Optional, Collection, Union, Hashable
 
-__all__ = [
-    "Cell",
-    "CellGroup",
-    "NumberPlacementPuzzle",
-]
-
 
 class Cell(object):
     """
@@ -26,7 +20,7 @@ class Cell(object):
         r"""
         Initializes a cell, accepting either a single value or a collection of
         potential values.
-        
+
         All potential values should be hashable and truth-y. The collection of
         symbols used by a puzzle will most likely be integers. If the puzzle
         uses 0 as a valid value, the potential values should be specified as
@@ -123,7 +117,7 @@ class NumberPlacementPuzzle(object):
             self._groups.add(group)
             for cell in group:
                 self._cells.add(cell)
-    
+
     @property
     def solved(self):
         """
