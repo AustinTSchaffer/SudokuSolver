@@ -6,7 +6,7 @@ there are other variants of the game that follow the same rules.
 
 """
 
-from typing import Optional, Collection, Union
+from typing import Optional, Collection, Union, Hashable
 
 __all__ = [
     "Cell",
@@ -22,9 +22,15 @@ class Cell(object):
     potential values if the exact value of the cell is uncertain.
     """
 
-    def __init__(self, value: int = None, potential_values: Collection[int] = None):
+    def __init__(self, value: Hashable = None, potential_values: Collection[Hashable] = None):
         r"""
-        Initializes a cell, accepting either a value or 
+        Initializes a cell, accepting either a single value or a collection of
+        potential values.
+        
+        All potential values should be hashable and truth-y. The collection of
+        symbols used by a puzzle will most likely be integers. If the puzzle
+        uses 0 as a valid value, the potential values should be specified as
+        strings instead of integers.
         """
         assert bool(value) ^ bool(potential_values), (
             "A Cell must have either a single value or a collection of \
@@ -35,7 +41,7 @@ class Cell(object):
         self._potential_values = set(potential_values or ())
 
     @property
-    def value(self) -> Optional[int]:
+    def value(self) -> Optional[Hashable]:
         """
         Retrieves the value of the cell, if the value has been set or if the
         set of potential values only contains one item, indicating that the
@@ -52,27 +58,27 @@ class Cell(object):
         return None
 
     @property
-    def potential_values(self) -> Collection[int]:
+    def potential_values(self) -> Collection[Hashable]:
         """
         Returns a copy of the set of potential values
         """
         return set(self._potential_values)
 
-    def remove_values(self, values: Union[int, Collection[int]]):
+    def remove_values(self, values: Union[Hashable, Collection[Hashable]]):
         """
         Removes a value or a set of values from the set of potential values for
         this cell.
         """
-        def _safe_remove(value):
+        def safe_remove(value):
             if value in self._potential_values:
                 self._potential_values.remove(value)
 
-        if type(values) is int:
-            _safe_remove(values)
+        if type(values) is Hashable:
+            safe_remove(values)
             return
 
         for value in values:
-            _safe_remove(value)
+            safe_remove(value)
 
     def __eq__(self, other) -> bool:
         return (
