@@ -6,7 +6,7 @@ there are other variants of the game that follow the same rules.
 
 """
 
-from typing import Optional, Collection, Union, Hashable
+from typing import Optional, Collection, Hashable, Set
 
 
 class Cell(object):
@@ -37,9 +37,9 @@ class Cell(object):
     @property
     def value(self) -> Optional[Hashable]:
         """
-        Retrieves the value of the cell, if the value has been set or if the
-        set of potential values only contains one item, indicating that the
-        cell 
+        Retrieves the value of the cell, if the value has been set or if the set
+        of potential values only contains one item. If this result is truthy, it
+        indicates that the cell is solved.
         """
 
         if self._value:
@@ -52,25 +52,32 @@ class Cell(object):
         return None
 
     @property
-    def potential_values(self) -> Collection[Hashable]:
+    def potential_values(self) -> Set[Hashable]:
         """
         Returns a copy of the set of potential values
         """
         return set(self._potential_values)
 
-    def remove_value(self, value: Hashable):
+    def remove_value(self, value: Hashable) -> bool:
         """
         Removes a value the set of potential values for this cell.
+        Returns true if any values were removed.
         """
-        self.remove_values([value])
+        return self.remove_values([value])
 
-    def remove_values(self, values: Collection[Hashable]):
+    def remove_values(self, values: Collection[Hashable]) -> bool:
         """
         Removes a set of values from the set of potential values for this cell.
+        Returns true if any values were removed.
         """
+        any_values_removed = False
+
         for value in values:
             if value in self._potential_values:
                 self._potential_values.remove(value)
+                any_values_removed = True
+
+        return any_values_removed
 
     def __eq__(self, other) -> bool:
         return (
@@ -89,7 +96,7 @@ class CellGroup(object):
     """
 
     def __init__(self, cells: Collection[Cell]):
-        self._cells = set()
+        self._cells = set()  # type: Set[Cell]
         for cell in cells:
             assert cell not in self._cells
             self._cells.add(cell)
@@ -99,6 +106,28 @@ class CellGroup(object):
 
     def __hash__(self):
         return id(self)
+
+    @property
+    def solved_cells(self) -> Set[Cell]:
+        """
+        Returns a set of the solved cells within the puzzle.
+        """
+        return {
+            cell
+            for cell in self._cells
+            if cell.value
+        }
+
+    @property
+    def unsolved_cells(self) -> Set[Cell]:
+        """
+        Returns a set of the unsolved cells within the group.
+        """
+        return {
+            cell
+            for cell in self._cells
+            if not cell.value
+        }
 
     def __iter__(self):
         return iter(self._cells)
@@ -126,3 +155,25 @@ class NumberPlacementPuzzle(object):
         puzzle.
         """
         return all(map(lambda cell: cell.value, self._cells))
+
+    @property
+    def solved_cells(self) -> Set[Cell]:
+        """
+        Returns a set of the solved cells within the puzzle.
+        """
+        return {
+            cell
+            for group in self._groups
+            for cell in group.solved_cells
+        }
+
+    @property
+    def unsolved_cells(self) -> Set[Cell]:
+        """
+        Returns a set of the unsolved cells within the puzzle.
+        """
+        return {
+            cell
+            for group in self._groups
+            for cell in group.unsolved_cells
+        }
