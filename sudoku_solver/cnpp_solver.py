@@ -47,6 +47,11 @@ class NumberPlacementPuzzleSolver(object):
         return (
             self.clear_solved_cells(group) or
             self.last_remaining_cell(group) or
+            # TODO: 2,3,4 are magic numbers which might not apply to non-9x9 sudokus.
+            # IDEA: loop from "2" to "half the number of distinct symbols, rounded down"
+            self.check_conjugates(2, group) or
+            self.check_conjugates(3, group) or
+            self.check_conjugates(4, group) or
             set()
         )
 
@@ -104,3 +109,29 @@ class NumberPlacementPuzzleSolver(object):
                 cells_changed.add(cell)
 
         return cells_changed
+
+    def check_conjugates(self, number: int, group: cnpp.Group):
+        """
+        Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
+        specified group. The `number` property specifies how many distinct
+        cells and distinct symbols it should consider when checking for
+        conjugates.
+        """
+
+        applicable_cells = set()
+        for cell in group.unsolved_cells():
+            if len(cell.potential_values()) <= number:
+                applicable_cells.add(cell)
+
+        if len(applicable_cells) < number:
+            return set()
+
+        changed_cells = set()
+
+        # for cell in nCr of applicable cells:
+        #   check if union of the cells' potential values == number
+        #     for cell in cells that aren't in that nCr
+        #       if (remove those values):
+        #         add cells to changed cells
+
+        return changed_cells
