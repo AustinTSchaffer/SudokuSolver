@@ -18,7 +18,7 @@ class SudokuCell(cnpp.Cell):
         self._location = location
 
 
-class SudokuPuzzle(cnpp.NumberPlacementPuzzle):
+class SudokuPuzzle(cnpp.Puzzle):
     def __init__(self, grid: List[List[int]]):
         r"""
 
@@ -49,7 +49,7 @@ class SudokuPuzzle(cnpp.NumberPlacementPuzzle):
                 cell_groups[("box", box_index)].add(cell)
 
         super().__init__([
-            cnpp.CellGroup(g)
+            cnpp.Group(g)
             for g in cell_groups.values()
         ])
 
@@ -60,8 +60,8 @@ class SudokuPuzzle(cnpp.NumberPlacementPuzzle):
         ]
 
         for cell in self._cells:  # type: SudokuCell
-            if cell.value:
-                output[cell._location[0]][cell._location[1]] = cell.value
+            if cell.value():
+                output[cell._location[0]][cell._location[1]] = cell.value()
 
         str_output = ""
         for row in output:

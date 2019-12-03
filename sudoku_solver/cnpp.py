@@ -6,7 +6,9 @@ there are other variants of the game that follow the same rules.
 
 """
 
-from typing import Optional, Collection, Hashable, Set
+from collections import defaultdict
+
+from typing import Optional, Collection, Hashable, Set, Iterable
 
 
 class Cell(object):
@@ -34,7 +36,6 @@ class Cell(object):
         self._value = value
         self._potential_values = set(potential_values or ())
 
-    @property
     def value(self) -> Optional[Hashable]:
         """
         Retrieves the value of the cell, if the value has been set or if the set
@@ -46,17 +47,27 @@ class Cell(object):
             return self._value
 
         if len(self._potential_values) == 1:
-            self._value = next(iter(self._potential_values))
+            self.set_value(next(iter(self._potential_values)))
             return self._value
 
         return None
 
-    @property
+    def set_value(self, value: Hashable):
+        """
+        Sets the value of this cell to a single value and erases any pencil
+        markings.
+        """
+        self._value = value
+        self._potential_values.clear()
+
     def potential_values(self) -> Set[Hashable]:
         """
-        Returns a copy of the set of potential values
+        Returns the set of potential values for the cell.
         """
-        return set(self._potential_values)
+        return self._potential_values
+    
+    def iter_potential_values(self) -> Iterable[Hashable]:
+        return iter(self._potential_values)
 
     def remove_value(self, value: Hashable) -> bool:
         """
@@ -90,7 +101,7 @@ class Cell(object):
         return id(self)
 
 
-class CellGroup(object):
+class Group(object):
     """
     Models a set of cells in a number-placement puzzle.
     """
@@ -107,7 +118,6 @@ class CellGroup(object):
     def __hash__(self):
         return id(self)
 
-    @property
     def solved_cells(self) -> Set[Cell]:
         """
         Returns a set of the solved cells within the puzzle.
@@ -115,10 +125,9 @@ class CellGroup(object):
         return {
             cell
             for cell in self._cells
-            if cell.value
+            if cell.value()
         }
 
-    @property
     def unsolved_cells(self) -> Set[Cell]:
         """
         Returns a set of the unsolved cells within the group.
@@ -126,29 +135,31 @@ class CellGroup(object):
         return {
             cell
             for cell in self._cells
-            if not cell.value
+            if not cell.value()
         }
 
     def __iter__(self):
         return iter(self._cells)
 
 
-class NumberPlacementPuzzle(object):
+class Puzzle(object):
     """
-    Models a number-placement puzzle as a collection of groups of Cells.
+    Models a number-placement puzzle as a collection of groups of cells.
     """
 
-    def __init__(self, groups: Collection[CellGroup]):
+    def __init__(self, groups: Collection[Group]):
         self._groups = set()
         self._cells = set()
+        self._cells_to_group_map = defaultdict(set)
+
         for group in groups:
             assert group not in self._groups
             self._groups.add(group)
             for cell in group:
                 self._cells.add(cell)
+                self._cells_to_group_map[cell].add(group)
 
-    @property
-    def solved(self):
+    def is_solved(self):
         """
         Returns true if all of the cells contained in the puzzle have a truthy
         value, which indicates that there is no longer any uncertainty in the
@@ -156,24 +167,35 @@ class NumberPlacementPuzzle(object):
         """
         return all(map(lambda cell: cell.value, self._cells))
 
-    @property
     def solved_cells(self) -> Set[Cell]:
         """
         Returns a set of the solved cells within the puzzle.
         """
         return {
             cell
-            for group in self._groups
-            for cell in group.solved_cells
+            for cell in self._cells
+            if cell.value()
         }
 
-    @property
     def unsolved_cells(self) -> Set[Cell]:
         """
         Returns a set of the unsolved cells within the puzzle.
         """
         return {
             cell
-            for group in self._groups
-            for cell in group.unsolved_cells
+            for cell in self._cells
+            if not cell.value()
         }
+
+    def get_groups(self, cell: Cell) -> Set[Group]:
+        """
+        Returns all of the groups that contain the cell.
+        """
+        assert cell in self._cells
+        return self._cells_to_group_map[cell]
+
+    def iter_groups(self):
+        return iter(self._groups)
+
+    def iter_cells(self):
+        return iter(self._cells)
