@@ -59,7 +59,7 @@ EXTREME = [
 ]
 
 SAMPLE_STARTING_POSITIONS = [
-    ("Beginner ", BEGINNER),
+    ("Beginner", BEGINNER),
     ("Easy", EASY),
     ("Medium", MEDIUM),
     ("Hard", HARD),
