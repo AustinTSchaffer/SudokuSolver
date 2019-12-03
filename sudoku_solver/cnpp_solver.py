@@ -68,9 +68,8 @@ class NumberPlacementPuzzleSolver(object):
         }
 
         for cell in group.unsolved_cells():
-            if not cell.value():
-                if cell.remove_values(solved_values):
-                    cells_changed.add(cell)
+            if cell.remove_values(solved_values):
+                cells_changed.add(cell)
 
         return cells_changed
 
