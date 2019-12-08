@@ -6,8 +6,10 @@ placement puzzles that can be modeled using the classes from the cnpp module.
 
 """
 
-import heapdict
 from collections import defaultdict
+import itertools
+
+import heapdict
 
 from . import cnpp
 
@@ -47,11 +49,7 @@ class NumberPlacementPuzzleSolver(object):
         return (
             self.clear_solved_cells(group) or
             self.last_remaining_cell(group) or
-            # TODO: 2,3,4 are magic numbers which might not apply to non-9x9 sudokus.
-            # IDEA: loop from "2" to "half the number of distinct symbols, rounded down"
-            self.check_conjugates(2, group) or
-            self.check_conjugates(3, group) or
-            self.check_conjugates(4, group) or
+            self.check_conjugates(group) or
             set()
         )
 
@@ -110,7 +108,22 @@ class NumberPlacementPuzzleSolver(object):
 
         return cells_changed
 
-    def check_conjugates(self, number: int, group: cnpp.Group):
+    def check_conjugates(self, group: cnpp.Group):
+        """
+        Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
+        specified group. Checks for all sizes of conjugate groups between "2"
+        and "half the number of cells in the group, rounded down".
+        """
+
+        changed_cells = set()
+
+        for number in range(2, int(len(group) / 2) + 1):
+            for cell_changed in self.check_conjugate(number, group):
+                changed_cells.add(cell_changed)
+
+        return changed_cells
+
+    def check_conjugate(self, number: int, group: cnpp.Group):
         """
         Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
         specified group. The `number` property specifies how many distinct
@@ -133,5 +146,16 @@ class NumberPlacementPuzzleSolver(object):
         #     for cell in cells that aren't in that nCr
         #       if (remove those values):
         #         add cells to changed cells
+
+        for combination in itertools.combinations(applicable_cells, number):
+            # combination = set(combination)
+            pencil_markings = set()
+            for cell in combination: # type: cnpp.Cell
+                pencil_markings = pencil_markings.union(cell.potential_values())
+            if len(pencil_markings) == number:
+                for cell in group.unsolved_cells():
+                    if cell not in combination:
+                        if cell.remove_values(pencil_markings):
+                            changed_cells.add(cell)
 
         return changed_cells
