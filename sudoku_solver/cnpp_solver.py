@@ -106,7 +106,7 @@ def last_remaining_cell(group: cnpp.Group) -> set:
 
     return cells_changed
 
-def check_conjugates(group: cnpp.Group):
+def check_conjugates(group: cnpp.Group) -> set:
     """
     Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
     specified group. Checks for all sizes of conjugate groups between "2"
@@ -121,7 +121,7 @@ def check_conjugates(group: cnpp.Group):
 
     return changed_cells
 
-def check_conjugate(number: int, group: cnpp.Group):
+def check_conjugate(number: int, group: cnpp.Group) -> set:
     """
     Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
     specified group. The `number` property specifies how many distinct
