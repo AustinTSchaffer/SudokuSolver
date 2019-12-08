@@ -65,7 +65,7 @@ class Cell(object):
         Returns the set of potential values for the cell.
         """
         return self._potential_values
-    
+
     def iter_potential_values(self) -> Iterable[Hashable]:
         return iter(self._potential_values)
 

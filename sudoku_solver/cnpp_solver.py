@@ -58,8 +58,6 @@ class NumberPlacementPuzzleSolver(object):
         This function models the obvious strategy, where pencil markings
         are erased from all of the cells in a group if the group already
         contains a solved cell that contains the value.
-
-        Returns a set of the cells that were altered.
         """
 
         cells_changed = set()
