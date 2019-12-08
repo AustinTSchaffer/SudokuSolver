@@ -47,113 +47,113 @@ class NumberPlacementPuzzleSolver(object):
             return set()
 
         return (
-            self.clear_solved_cells(group) or
-            self.last_remaining_cell(group) or
-            self.check_conjugates(group) or
+            clear_solved_cells(group) or
+            last_remaining_cell(group) or
+            check_conjugates(group) or
             set()
         )
 
-    def clear_solved_cells(self, group: cnpp.Group) -> set:
-        """
-        This function models the obvious strategy, where pencil markings
-        are erased from all of the cells in a group if the group already
-        contains a solved cell that contains the value.
-        """
+def clear_solved_cells(group: cnpp.Group) -> set:
+    """
+    This function models the obvious strategy, where pencil markings
+    are erased from all of the cells in a group if the group already
+    contains a solved cell that contains the value.
+    """
 
-        cells_changed = set()
+    cells_changed = set()
 
-        solved_values = {
-            cell.value()
-            for cell in
-            group.solved_cells()
-        }
+    solved_values = {
+        cell.value()
+        for cell in
+        group.solved_cells()
+    }
 
-        for cell in group.unsolved_cells():
-            if cell.remove_values(solved_values):
+    for cell in group.unsolved_cells():
+        if cell.remove_values(solved_values):
+            cells_changed.add(cell)
+
+    return cells_changed
+
+def last_remaining_cell(group: cnpp.Group) -> set:
+    """
+    Looks through all of the pencil markings in the group to check for
+    symbols that only occur once in the pencil markings for that group.
+    Checks to make sure that the pencil markings are up to date.
+    """
+
+    cells_changed = set()
+
+    solved_values = {
+        cell.value()
+        for cell in
+        group.solved_cells()
+    }
+
+    pencil_marking_map = defaultdict(set)
+    for cell in group.unsolved_cells():
+        for value in cell.iter_potential_values():
+            pencil_marking_map[value].add(cell)
+
+    for value, cells in pencil_marking_map.items():
+        if value in solved_values:
+            for cell in cells:  # type: cnpp.Cell
+                cell.remove_value(value)
                 cells_changed.add(cell)
+        elif len(cells) == 1:
+            cell = next(iter(cells))
+            cell.set_value(value)
+            cells_changed.add(cell)
 
-        return cells_changed
+    return cells_changed
 
-    def last_remaining_cell(self, group: cnpp.Group) -> set:
-        """
-        Looks through all of the pencil markings in the group to check for
-        symbols that only occur once in the pencil markings for that group.
-        Checks to make sure that the pencil markings are up to date.
-        """
+def check_conjugates(group: cnpp.Group):
+    """
+    Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
+    specified group. Checks for all sizes of conjugate groups between "2"
+    and "half the number of cells in the group, rounded down".
+    """
 
-        cells_changed = set()
+    changed_cells = set()
 
-        solved_values = {
-            cell.value()
-            for cell in
-            group.solved_cells()
-        }
+    for number in range(2, int(len(group) / 2) + 1):
+        for cell_changed in check_conjugate(number, group):
+            changed_cells.add(cell_changed)
 
-        pencil_marking_map = defaultdict(set)
-        for cell in group.unsolved_cells():
-            for value in cell.iter_potential_values():
-                pencil_marking_map[value].add(cell)
+    return changed_cells
 
-        for value, cells in pencil_marking_map.items():
-            if value in solved_values:
-                for cell in cells:  # type: cnpp.Cell
-                    cell.remove_value(value)
-                    cells_changed.add(cell)
-            elif len(cells) == 1:
-                cell = next(iter(cells))
-                cell.set_value(value)
-                cells_changed.add(cell)
+def check_conjugate(number: int, group: cnpp.Group):
+    """
+    Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
+    specified group. The `number` property specifies how many distinct
+    cells and distinct symbols it should consider when checking for
+    conjugates.
+    """
 
-        return cells_changed
+    applicable_cells = set()
+    for cell in group.unsolved_cells():
+        if len(cell.potential_values()) <= number:
+            applicable_cells.add(cell)
 
-    def check_conjugates(self, group: cnpp.Group):
-        """
-        Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
-        specified group. Checks for all sizes of conjugate groups between "2"
-        and "half the number of cells in the group, rounded down".
-        """
+    if len(applicable_cells) < number:
+        return set()
 
-        changed_cells = set()
+    changed_cells = set()
 
-        for number in range(2, int(len(group) / 2) + 1):
-            for cell_changed in self.check_conjugate(number, group):
-                changed_cells.add(cell_changed)
+    # for cell in nCr of applicable cells:
+    #   check if union of the cells' potential values == number
+    #     for cell in cells that aren't in that nCr
+    #       if (remove those values):
+    #         add cells to changed cells
 
-        return changed_cells
+    for combination in itertools.combinations(applicable_cells, number):
+        # combination = set(combination)
+        pencil_markings = set()
+        for cell in combination: # type: cnpp.Cell
+            pencil_markings = pencil_markings.union(cell.potential_values())
+        if len(pencil_markings) == number:
+            for cell in group.unsolved_cells():
+                if cell not in combination:
+                    if cell.remove_values(pencil_markings):
+                        changed_cells.add(cell)
 
-    def check_conjugate(self, number: int, group: cnpp.Group):
-        """
-        Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
-        specified group. The `number` property specifies how many distinct
-        cells and distinct symbols it should consider when checking for
-        conjugates.
-        """
-
-        applicable_cells = set()
-        for cell in group.unsolved_cells():
-            if len(cell.potential_values()) <= number:
-                applicable_cells.add(cell)
-
-        if len(applicable_cells) < number:
-            return set()
-
-        changed_cells = set()
-
-        # for cell in nCr of applicable cells:
-        #   check if union of the cells' potential values == number
-        #     for cell in cells that aren't in that nCr
-        #       if (remove those values):
-        #         add cells to changed cells
-
-        for combination in itertools.combinations(applicable_cells, number):
-            # combination = set(combination)
-            pencil_markings = set()
-            for cell in combination: # type: cnpp.Cell
-                pencil_markings = pencil_markings.union(cell.potential_values())
-            if len(pencil_markings) == number:
-                for cell in group.unsolved_cells():
-                    if cell not in combination:
-                        if cell.remove_values(pencil_markings):
-                            changed_cells.add(cell)
-
-        return changed_cells
+    return changed_cells
