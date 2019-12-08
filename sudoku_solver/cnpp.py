@@ -118,6 +118,9 @@ class Group(object):
     def __hash__(self):
         return id(self)
 
+    def __len__(self) -> int:
+        return len(self._cells)
+
     def solved_cells(self) -> Set[Cell]:
         """
         Returns a set of the solved cells within the puzzle.
