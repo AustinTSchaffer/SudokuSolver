@@ -93,8 +93,8 @@ class Cell(object):
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, Cell) and
-            self.value is not None and
-            self.value == other.value
+            self.value() is not None and
+            self.value() == other.value()
         )
 
     def __hash__(self):
