@@ -18,7 +18,7 @@ but is not limited to, the following puzzles:
 - Hyper Sudoku
 
 This solver is not capable of solving Killer Sudoku, Kakuro, or other
-number-placement puzzles where arithemetic is a restriction. This solver
+number-placement puzzles where arithmetic is used as a restriction. This solver
 is also not capable of solving puzzles where a grouping of single values can
 contain duplicate entries, nor any puzzles where alpha-characters are used
 and the resulting puzzle is expected to contain a hidden word or phrase.
