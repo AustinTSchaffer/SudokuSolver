@@ -50,6 +50,7 @@ class NumberPlacementPuzzleSolver(object):
             clear_solved_cells(group) or
             last_remaining_cell(group) or
             check_conjugates(group) or
+            check_hidden_conjugates(group) or
             check_intersections(puzzle, group) or
             set()
         )
@@ -157,6 +158,16 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
                 if cell not in combination:
                     if cell.remove_values(pencil_markings):
                         changed_cells.add(cell)
+
+    return changed_cells
+
+
+def check_hidden_conjugates(group: cnpp.Group) -> set:
+    changed_cells = set()
+
+    for number in range(2, int(len(group) / 2) + 1):
+        for cell_changed in check_hidden_conjugate(number, group):
+            changed_cells.add(cell_changed)
 
     return changed_cells
 
