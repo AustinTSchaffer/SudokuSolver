@@ -154,12 +154,11 @@ class Puzzle(object):
 
     def is_solved(self):
         """
-        Returns true if all of the cells contained in the puzzle have a truthy
-        value, which indicates that there is no longer any uncertainty in the
-        puzzle.
+        Returns true if all of the cells in this puzzle have a value. Raises a
+        ValueError if any of the groups contain a duplicate value.
         """
         for group in self._groups:
-            if not all(map(lambda cell: cell.value(), group)):
+            if len(group.unsolved_cells()) > 0:
                 return False
 
             distinct_values = set()
