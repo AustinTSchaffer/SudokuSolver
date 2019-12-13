@@ -158,7 +158,18 @@ class Puzzle(object):
         value, which indicates that there is no longer any uncertainty in the
         puzzle.
         """
-        return all(map(lambda cell: cell.value, self._cells))
+        for group in self._groups:
+            if not all(map(lambda cell: cell.value(), group)):
+                return False
+
+            distinct_values = set()
+            for cell in group:
+                value = cell.value()
+                if value in distinct_values:
+                    raise ValueError("A group was found with a duplicate entry: {}".format(value))
+                distinct_values.add(value)
+
+        return True
 
     def solved_cells(self) -> Set[Cell]:
         """
