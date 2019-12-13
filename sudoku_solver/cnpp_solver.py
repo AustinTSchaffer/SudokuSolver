@@ -50,8 +50,10 @@ class NumberPlacementPuzzleSolver(object):
             clear_solved_cells(group) or
             last_remaining_cell(group) or
             check_conjugates(group) or
+            check_intersections(puzzle, group) or
             set()
         )
+
 
 def clear_solved_cells(group: cnpp.Group) -> set:
     """
@@ -155,5 +157,68 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
                 if cell not in combination:
                     if cell.remove_values(pencil_markings):
                         changed_cells.add(cell)
+
+    return changed_cells
+
+
+def check_hidden_conjugate(number: int, group: cnpp.Group) -> set:
+    changed_cells = set()
+
+    return changed_cells
+
+
+def check_intersections(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
+    """
+    If any one number can only be placed in the intersection of 2 groups, then
+    we can remove that number from all of the cells that aren't included in that
+    intersection.
+
+    This situation is illustrated in a classic Sudoku when a 3x3 box has a
+    collection cells that share a common pencil marking, when all of those cells
+    are in the same row or column. If any of the other cells in that row or
+    collumn are given that shared value, then the 3x3 box no longer has any
+    cells remaining that can hold the value. This means that the value must
+    exist in that intersection of the box and the row/column, removing the value
+    from the rest of the row or column.
+
+    If all of the cells in a group that contain a specific value all exist in a
+    single other group that isn't the original group, then those values can be
+    removed from all cells in the other group that aren't also in the original
+    group.
+    """
+
+    changed_cells = set()
+
+    if not any(group.unsolved_cells()):
+        return changed_cells
+
+    value_to_cell_map = defaultdict(set)
+    for cell in group:
+        if not cell.value():
+            for value in cell.potential_values():
+                value_to_cell_map[value].add(cell)
+
+    # Caches the groups that intersect with the current group
+    intersecting_groups = {
+        intersecting_group
+        for cell in group
+        for intersecting_group in puzzle.get_groups(cell)
+        if intersecting_group != group
+    }
+
+    for value, cells_containing_value in value_to_cell_map.items():
+        cells_to_prune = (
+            cell
+
+            for intersecting_group in intersecting_groups
+            if intersecting_group.issuperset(cells_containing_value)
+
+            for cell in intersecting_group.unsolved_cells()
+            if cell not in cells_containing_value
+        )
+
+        for cell in cells_to_prune:
+            if cell.remove_value(value):
+                changed_cells.add(cell)
 
     return changed_cells
