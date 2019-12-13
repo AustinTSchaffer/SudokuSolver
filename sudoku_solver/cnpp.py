@@ -101,25 +101,16 @@ class Cell(object):
         return id(self)
 
 
-class Group(object):
+class Group(set):
     """
     Models a set of cells in a number-placement puzzle.
     """
 
     def __init__(self, cells: Collection[Cell]):
-        self._cells = set()  # type: Set[Cell]
-        for cell in cells:
-            assert cell not in self._cells
-            self._cells.add(cell)
-
-    def __contains__(self, cell: Cell) -> bool:
-        return cell in self._cells
+        super().__init__(cells)
 
     def __hash__(self):
         return id(self)
-
-    def __len__(self) -> int:
-        return len(self._cells)
 
     def solved_cells(self) -> Set[Cell]:
         """
@@ -127,7 +118,7 @@ class Group(object):
         """
         return {
             cell
-            for cell in self._cells
+            for cell in self
             if cell.value()
         }
 
@@ -137,13 +128,12 @@ class Group(object):
         """
         return {
             cell
-            for cell in self._cells
+            for cell in self
             if not cell.value()
         }
 
-    def __iter__(self):
-        return iter(self._cells)
-
+    def __iter__(self) -> Cell:
+        return super().__iter__()
 
 class Puzzle(object):
     """
