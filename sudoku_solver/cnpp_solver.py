@@ -77,6 +77,7 @@ def clear_solved_cells(group: cnpp.Group) -> set:
 
     return cells_changed
 
+
 def last_remaining_cell(group: cnpp.Group) -> set:
     """
     Looks through all of the pencil markings in the group to check for
@@ -109,6 +110,7 @@ def last_remaining_cell(group: cnpp.Group) -> set:
 
     return cells_changed
 
+
 def check_conjugates(group: cnpp.Group) -> set:
     """
     Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
@@ -123,6 +125,7 @@ def check_conjugates(group: cnpp.Group) -> set:
             changed_cells.add(cell_changed)
 
     return changed_cells
+
 
 def check_conjugate(number: int, group: cnpp.Group) -> set:
     """
