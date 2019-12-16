@@ -197,7 +197,45 @@ def check_hidden_conjugate(number: int, group: cnpp.Group) -> set:
     conjugates.
     """
 
+    value_to_cell_map = group.potential_value_map()
+
+    # Slims the list of values to consider down based on the `number`
+    # argument. As an example, a number that could exist in 6 cells
+    # cannot be part of a hidden conjugate that consists of 4 values
+    # across 4 cells. Only values that appear up to `number` times in
+    # the group can be considered by this section of the algorithm.
+
+    unsolved_cells_for_debugging = group.unsolved_cells()
+
+    applicable_values = set()
+    for value, cells in value_to_cell_map.items():
+        if len(cells) <= number:
+            applicable_values.add(value)
+
     changed_cells = set()
+    for value_combination in itertools.combinations(applicable_values, number):
+        value_combination = set(value_combination)
+
+        cells_containing_value = {
+            cell
+            for value in value_combination
+            for cell in value_to_cell_map[value]
+        }
+
+        # If there exists a combination of values where "the number of cells
+        # that reference the values" matches "the number of values being
+        # considered", then all of the values that are not in that combination
+        # can be removed from those cells.
+
+        if len(cells_containing_value) == number:
+            for cell in cells_containing_value:
+
+                # Remove all potential values from the cell if the value does
+                # not exist in `value_combination`
+
+                values_to_remove = cell.potential_values() - value_combination
+                if cell.remove_values(values_to_remove):
+                    changed_cells.add(cell)
 
     return changed_cells
 
