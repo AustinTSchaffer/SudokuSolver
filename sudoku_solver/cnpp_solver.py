@@ -135,10 +135,18 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
     conjugates.
     """
 
+    # A cell is only offered for consideration into this algorithm if its
+    # number of potential values is equal to or less than the `number`
+    # argument. As an example, a cell with 4 potential values cannot be
+    # part of a naked triple.
+
     applicable_cells = set()
     for cell in group.unsolved_cells():
         if len(cell.potential_values()) <= number:
             applicable_cells.add(cell)
+
+    # If not enough cells met the criteria above, then there is no need to
+    # continue.
 
     if len(applicable_cells) < number:
         return set()
