@@ -145,17 +145,10 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
         if len(cell.potential_values()) <= number:
             applicable_cells.add(cell)
 
-    # If not enough cells met the criteria above, then there is no need to
-    # continue.
-
-    if len(applicable_cells) < number:
-        return set()
-
-    changed_cells = set()
-
     # This algorithm operates on sub-sets of a given size from the set of
     # unsolved cells within the current group.
 
+    changed_cells = set()
     for combination in itertools.combinations(applicable_cells, number):
 
         # Create a set of the distinct pencil markings that exist within
