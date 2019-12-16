@@ -218,7 +218,7 @@ def check_intersections(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
     This situation is illustrated in a classic Sudoku when a 3x3 box has a
     collection cells that share a common pencil marking, when all of those cells
     are in the same row or column. If any of the other cells in that row or
-    collumn are given that shared value, then the 3x3 box no longer has any
+    column are given that shared value, then the 3x3 box no longer has any
     cells remaining that can hold the value. This means that the value must
     exist in that intersection of the box and the row/column, removing the value
     from the rest of the row or column.
