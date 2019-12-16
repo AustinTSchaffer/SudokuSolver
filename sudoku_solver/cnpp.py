@@ -8,7 +8,7 @@ there are other variants of the game that follow the same rules.
 
 from collections import defaultdict
 
-from typing import Optional, Collection, Hashable, Set, Iterable
+from typing import Optional, Collection, Hashable, Set, Iterable, DefaultDict
 
 
 class Cell(object):
@@ -134,6 +134,22 @@ class Group(set):
 
     def __iter__(self) -> Cell:
         return super().__iter__()
+
+    def potential_value_map(self) -> DefaultDict[Hashable, Set[Cell]]:
+        """
+        Returns a default dict that maps each of the distinct hashable values
+        from the group's collection of cells to sets containing the unsolved
+        cells that have the value in their set of potential values.
+        """
+
+        value_to_cell_map = defaultdict(set)
+
+        for cell in self:
+            if not cell.value():
+                for value in cell.potential_values():
+                    value_to_cell_map[value].add(cell)
+
+        return value_to_cell_map
 
 class Puzzle(object):
     """

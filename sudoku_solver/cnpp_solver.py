@@ -231,11 +231,7 @@ def check_intersections(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
 
     changed_cells = set()
 
-    value_to_cell_map = defaultdict(set)
-    for cell in group:
-        if not cell.value():
-            for value in cell.potential_values():
-                value_to_cell_map[value].add(cell)
+    value_to_cell_map = group.potential_value_map()
 
     # Caches the groups that intersect with the current group
     intersecting_groups = {
