@@ -43,7 +43,7 @@ class NumberPlacementPuzzleSolver(object):
         return puzzle
 
     def process_cell_group(self, puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
-        if len(group.unsolved_cells()) == 0:
+        if not any(group.unsolved_cells()):
             return set()
 
         return (
@@ -115,7 +115,7 @@ def check_conjugates(group: cnpp.Group) -> set:
     """
     Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
     specified group. Checks for all sizes of conjugate groups between "2"
-    and "half the number of cells in the group, rounded down".
+    and "one more than half the number of cells in the group, rounded down".
     """
 
     changed_cells = set()
@@ -130,7 +130,7 @@ def check_conjugates(group: cnpp.Group) -> set:
 def check_conjugate(number: int, group: cnpp.Group) -> set:
     """
     Checks for conjugate (a.k.a. naked) pairs, triples, quads, etc in the
-    specified group. The `number` property specifies how many distinct
+    specified group. The `number` argument specifies how many distinct
     cells and distinct symbols it should consider when checking for
     conjugates.
     """
@@ -145,18 +145,26 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
 
     changed_cells = set()
 
-    # for cell in nCr of applicable cells:
-    #   check if union of the cells' potential values == number
-    #     for cell in cells that aren't in that nCr
-    #       if (remove those values):
-    #         add cells to changed cells
+    # This algorithm operates on sub-sets of a given size from the set of
+    # unsolved cells within the current group.
 
     for combination in itertools.combinations(applicable_cells, number):
-        # combination = set(combination)
-        pencil_markings = set()
-        for cell in combination: # type: cnpp.Cell
-            pencil_markings = pencil_markings.union(cell.potential_values())
+
+        # Create a set of the distinct pencil markings that exist within
+        # the specified combination of cells.
+
+        pencil_markings = {
+            pencil_marking
+            for cell in combination
+            for pencil_marking in cell.potential_values()
+        }
+
         if len(pencil_markings) == number:
+
+            # If this point is reached, the number of distinct pencil markings
+            # equals the number of cells in the combination, meaning those
+            # symbols cannot exist in any of the other cells in this group.
+
             for cell in group.unsolved_cells():
                 if cell not in combination:
                     if cell.remove_values(pencil_markings):
@@ -166,6 +174,11 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
 
 
 def check_hidden_conjugates(group: cnpp.Group) -> set:
+    """
+    Checks for hidden conjugate pairs, triples, quads, etc in the specified 
+    group. Checks for all sizes of conjugate groups between "2" and "one more
+    than half the number of cells in the group, rounded down".
+    """
     changed_cells = set()
 
     for number in range(2, int(len(group) / 2) + 1):
@@ -176,6 +189,13 @@ def check_hidden_conjugates(group: cnpp.Group) -> set:
 
 
 def check_hidden_conjugate(number: int, group: cnpp.Group) -> set:
+    """
+    Checks for hidden conjugate pairs, triples, quads, etc in the
+    specified group. The `number` argument specifies how many distinct
+    cells and distinct symbols it should consider when checking for
+    conjugates.
+    """
+
     changed_cells = set()
 
     return changed_cells
@@ -202,9 +222,6 @@ def check_intersections(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
     """
 
     changed_cells = set()
-
-    if not any(group.unsolved_cells()):
-        return changed_cells
 
     value_to_cell_map = defaultdict(set)
     for cell in group:
