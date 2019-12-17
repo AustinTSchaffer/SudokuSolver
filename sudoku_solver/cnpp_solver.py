@@ -14,46 +14,48 @@ import heapdict
 from . import cnpp
 
 
-class NumberPlacementPuzzleSolver(object):
-    def solve(self, puzzle: cnpp.Puzzle):
-        """
-        Solves the input number-placement puzzle. Modifies and returns the
-        original object.
-        """
+def solve(puzzle: cnpp.Puzzle):
+    """
+    Solves the input number-placement puzzle. Modifies the
+    input puzzle instance.
+    """
 
-        group_priority_queue = heapdict.heapdict()
-        for group in puzzle.iter_groups():
-            group_priority_queue[group] = 0
+    group_priority_queue = heapdict.heapdict()
+    for group in puzzle.iter_groups():
+        group_priority_queue[group] = 0
 
-        while len(group_priority_queue) > 0:
-            (group, _) = group_priority_queue.popitem()
+    while len(group_priority_queue) > 0:
+        (group, _) = group_priority_queue.popitem()
 
-            changed_cells = self.process_cell_group(puzzle, group)
-            groups_changed = defaultdict(int)
+        changed_cells = process_cell_group(puzzle, group)
+        groups_changed = defaultdict(int)
 
-            for cell in changed_cells:
-                for changed_group in puzzle.get_groups(cell):
-                    groups_changed[changed_group] += 1
-            for changed_group, times_changed in groups_changed.items():
-                if changed_group in group_priority_queue:
-                    group_priority_queue[changed_group] -= times_changed
-                else:
-                    group_priority_queue[changed_group] = - times_changed
+        for cell in changed_cells:
+            for changed_group in puzzle.get_groups(cell):
+                groups_changed[changed_group] += 1
+        for changed_group, times_changed in groups_changed.items():
+            if changed_group not in group_priority_queue:
+                group_priority_queue[changed_group] = 0
+            group_priority_queue[changed_group] -= times_changed
 
-        return puzzle
+    if not puzzle.is_solved():
+        puzzle
 
-    def process_cell_group(self, puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
-        if not any(group.unsolved_cells()):
-            return set()
+    return True
 
-        return (
-            clear_solved_cells(group) or
-            last_remaining_cell(group) or
-            check_conjugates(group) or
-            check_hidden_conjugates(group) or
-            check_intersections(puzzle, group) or
-            set()
-        )
+
+def process_cell_group(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
+    if not any(group.unsolved_cells()):
+        return set()
+
+    return (
+        clear_solved_cells(group) or
+        last_remaining_cell(group) or
+        check_conjugates(group) or
+        check_hidden_conjugates(group) or
+        check_intersections(puzzle, group) or
+        set()
+    )
 
 
 def clear_solved_cells(group: cnpp.Group) -> set:

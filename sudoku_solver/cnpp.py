@@ -7,7 +7,7 @@ there are other variants of the game that follow the same rules.
 """
 
 from collections import defaultdict
-
+import enum
 from typing import Optional, Collection, Hashable, Set, Iterable, DefaultDict
 
 
@@ -151,6 +151,17 @@ class Group(set):
 
         return value_to_cell_map
 
+
+class PuzzleState(enum.Enum):
+    """
+    Enumerates the state of a 
+    """
+
+    Solved = enum.auto(),
+    Unsolved = enum.auto(),
+    Conflict = enum.auto(),
+
+
 class Puzzle(object):
     """
     Models a number-placement puzzle as a collection of groups of cells.
@@ -168,23 +179,26 @@ class Puzzle(object):
                 self._cells.add(cell)
                 self._cells_to_group_map[cell].add(group)
 
-    def is_solved(self):
+    def state(self) -> PuzzleState:
         """
-        Returns true if all of the cells in this puzzle have a value. Raises a
-        ValueError if any of the groups contain a duplicate value.
+        - Returns `PuzzleState.Solved` if all of the cells in this puzzle have
+        a value and there are no value conflicts.
+        - Returns `PuzzleState.Conflict` if there are any groups that contain
+        a duplicate value.
+        - Returns `PuzzleState.Unsolved` otherwise.
         """
         for group in self._groups:
             if len(group.unsolved_cells()) > 0:
-                return False
+                return PuzzleState.Unsolved
 
             distinct_values = set()
             for cell in group:
                 value = cell.value()
                 if value in distinct_values:
-                    raise ValueError("A group was found with a duplicate entry: {}".format(value))
+                    return PuzzleState.Conflict
                 distinct_values.add(value)
 
-        return True
+        return PuzzleState.Solved
 
     def solved_cells(self) -> Set[Cell]:
         """
