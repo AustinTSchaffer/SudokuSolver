@@ -1,8 +1,8 @@
 r"""
 
-Contains the `NumberPlacementPuzzleSolver` class, which is an abstractable
-collection of functions that can be used to solve combinatorial, number
-placement puzzles that can be modeled using the classes from the cnpp module.
+Contains a collection of functions that can be used to solve combinatorial,
+number placement puzzles that can be modeled using the classes from the cnpp
+module.
 
 """
 
