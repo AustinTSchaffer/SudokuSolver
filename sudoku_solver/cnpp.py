@@ -132,7 +132,7 @@ class Group(set):
             if not cell.value()
         }
 
-    def __iter__(self) -> Cell:
+    def __iter__(self) -> Iterable[Cell]:
         return super().__iter__()
 
     def potential_value_map(self) -> DefaultDict[Hashable, Set[Cell]]:
@@ -154,12 +154,14 @@ class Group(set):
 
 class PuzzleState(enum.Enum):
     """
-    Enumerates the state of a 
+    Enumerates the generalized state of a CNPP, determining whether the game is
+    solved, unsolved, or if the puzzle contains a conflict which means that the
+    game is not solveable.
     """
 
-    Solved = enum.auto(),
-    Unsolved = enum.auto(),
-    Conflict = enum.auto(),
+    Solved = 1,
+    Unsolved = 2,
+    Conflict = 3,
 
 
 class Puzzle(object):
@@ -208,21 +210,13 @@ class Puzzle(object):
         """
         Returns a set of the solved cells within the puzzle.
         """
-        return {
-            cell
-            for cell in self._cells
-            if cell.value()
-        }
+        return set(self.iter_solved_cells())
 
     def unsolved_cells(self) -> Set[Cell]:
         """
         Returns a set of the unsolved cells within the puzzle.
         """
-        return {
-            cell
-            for cell in self._cells
-            if not cell.value()
-        }
+        return set(self.iter_unsolved_cells())
 
     def get_groups(self, cell: Cell) -> Set[Group]:
         """
@@ -232,7 +226,33 @@ class Puzzle(object):
         return self._cells_to_group_map[cell]
 
     def iter_groups(self):
+        """
+        Returns an iterator over the groups in the puzzle.
+        """
         return iter(self._groups)
 
     def iter_cells(self):
+        """
+        Returns an iterator over the cells in the puzzle.
+        """
         return iter(self._cells)
+
+    def iter_unsolved_cells(self):
+        """
+        Returns an iterator over the unsolved cells in the puzzle.
+        """
+        return (
+            cell for cell in
+            self._cells
+            if not cell.value()
+        )
+
+    def iter_solved_cells(self):
+        """
+        Returns an iterator over the solved cells in the puzzle.
+        """
+        return (
+            cell for cell in
+            self._cells
+            if cell.value()
+        )
