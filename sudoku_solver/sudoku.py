@@ -17,6 +17,16 @@ class SudokuCell(cnpp.Cell):
 
         self._location = location
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, SudokuCell) and
+            super().__eq__(other) and
+            self._location == other._location
+        )
+
+    def __hash__(self):
+        return super().__hash__()
+
 
 class SudokuPuzzle(cnpp.Puzzle):
     def __init__(self, grid: List[List[int]]):
