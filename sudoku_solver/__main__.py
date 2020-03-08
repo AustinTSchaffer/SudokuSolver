@@ -88,10 +88,10 @@ def main():
         print("{} Starting Position:".format(SP_RANK))
         print(sudoku)
 
-        solved_sudoku = sudoku_solver.cnpp_solver.solve(sudoku)
+        sudoku, state = sudoku_solver.cnpp_solver.solve(sudoku)
 
-        print("Solved:")
-        print(solved_sudoku)
+        print(f"Puzzle State: {state}")
+        print(sudoku)
 
 if __name__ == "__main__":
     main()

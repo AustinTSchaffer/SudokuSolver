@@ -15,47 +15,97 @@ import heapdict
 from . import cnpp
 
 
-def solve(puzzle: cnpp.Puzzle) -> cnpp.Puzzle:
+def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
     """
-    Solves the input number-placement puzzle. Does not modify the input puzzle.
+    Solves the input number-placement puzzle. Returns a tuple containing a copy
+    of the puzzle and its resulting state. Does not modify the input puzzle.
     """
 
-    def _solve(_puzzle: cnpp.Puzzle, make_copy: bool) -> cnpp.PuzzleState:
+    def _solve(_puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
+        """
+        Solves the input number-placement puzzle. Modifies the input puzzle.
+        Returns a tuple containing the puzzle's resulting state as well as the
+        a reference to the input puzzle.
+        """
+
+        # Uses a priority queue to help select the next cell group to process.
         group_priority_queue = heapdict.heapdict()
         for group in _puzzle.iter_groups():
             group_priority_queue[group] = 0
 
-        while len(group_priority_queue) > 0:
+        current_puzzle_state = _puzzle.state()
+
+        def _should_loop() -> bool:
+            """
+            Satisfies the condition of the while loop below.
+            """
+            return (
+                current_puzzle_state == cnpp.PuzzleState.Unsolved
+                and len(group_priority_queue) > 0
+            )
+
+        while _should_loop():
+            # Pull the next group from the priority
             (group, _) = group_priority_queue.popitem()
 
+            # Process the current group
             changed_cells = process_cell_group(_puzzle, group)
-            groups_changed = defaultdict(int)
 
-            # Find the groups that were changed
+            # Calculate the number of times each group was changed
+            groups_changed = defaultdict(int)
             for cell in changed_cells:
                 for changed_group in _puzzle.get_groups(cell):
                     groups_changed[changed_group] += 1
 
-            # Update priorities for groups
+            # Update priorities for groups using the calculations above
             for changed_group, times_changed in groups_changed.items():
                 if changed_group not in group_priority_queue:
                     group_priority_queue[changed_group] = 0
                 group_priority_queue[changed_group] -= times_changed
 
-            state = _puzzle.state()
-        
+            # Recalculate the puzzle's current state
+            current_puzzle_state = _puzzle.state()
+
+        return _puzzle, current_puzzle_state
 
     _puzzle = copy.deepcopy(puzzle)
-    result = _solve(_puzzle, True)
-    if result == cnpp.PuzzleState.Unsolved:
-        # make a copy
-        # make a guess
-        # recurse
-        # Check guess, should be guarenteed solved or conflict
-        # conflict? make a different copy and a different guess
-        pass
+    _puzzle, _puzzle_state = _solve(_puzzle)
 
-    return puzzle
+    if _puzzle_state != cnpp.PuzzleState.Unsolved:
+        return _puzzle, _puzzle_state
+
+    # If the deterministic puzzle-solving functions were not able to fully solve the
+    # puzzle, then the solver needs to make a guess.
+
+    # Save a copy of the puzzle in case the guess turns out to cause a
+    # conflict.
+    __puzzle = copy.deepcopy(_puzzle)
+
+    # Make a guess.
+    cell_with_a_guess = next(iter(_puzzle.unsolved_cells()))
+    guess = next(iter(cell_with_a_guess.potential_values()))
+    cell_with_a_guess.set_value(guess)
+
+    # Attempt to solve using the variant of solve that doesn't create
+    # another copy.
+    _puzzle, _puzzle_state = _solve(_puzzle)
+
+    if _puzzle_state == cnpp.PuzzleState.Conflict:
+        # Rollback `_puzzle` variable to the saved copy. Remove guess from
+        # the cell's potential values.
+
+        _puzzle = __puzzle
+        del __puzzle
+
+        rollback_successful = False
+        for cell in _puzzle.unsolved_cells():
+            if cell == cell_with_a_guess:
+                rollback_successful = True
+                cell.remove_value(guess)
+
+        assert rollback_successful, "Concurrency error. Cell chosen for guess is no longer unsolved."
+
+    return solve(_puzzle)
 
 
 def process_cell_group(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
