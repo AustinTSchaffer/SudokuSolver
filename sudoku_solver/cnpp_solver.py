@@ -271,8 +271,6 @@ def check_hidden_conjugate(number: int, group: cnpp.Group) -> set:
     # across 4 cells. Only values that appear up to `number` times in
     # the group can be considered by this section of the algorithm.
 
-    unsolved_cells_for_debugging = group.unsolved_cells()
-
     applicable_values = set()
     for value, cells in value_to_cell_map.items():
         if len(cells) <= number:
