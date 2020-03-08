@@ -184,9 +184,13 @@ class Puzzle(object):
         - Returns `PuzzleState.Solved` if all of the cells in this puzzle have
         a value and there are no value conflicts.
         - Returns `PuzzleState.Conflict` if there are any groups that contain
-        a duplicate value.
+        a duplicate value or if there are any cells that have 
         - Returns `PuzzleState.Unsolved` otherwise.
         """
+        for cell in self._cells:
+            if not (cell.value() or any(cell.potential_values())):
+                return PuzzleState.Conflict
+
         for group in self._groups:
             if len(group.unsolved_cells()) > 0:
                 return PuzzleState.Unsolved
