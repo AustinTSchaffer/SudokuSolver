@@ -75,11 +75,10 @@ def main():
         print("{} Starting Position:".format(SP_RANK))
         print(sudoku)
 
-        solver = sudoku_solver.cnpp_solver.NumberPlacementPuzzleSolver()
-        solver.solve(sudoku)
+        solved_sudoku = sudoku_solver.cnpp_solver.solve(sudoku)
 
         print("Solved:")
-        print(sudoku)
+        print(solved_sudoku)
 
 if __name__ == "__main__":
     main()

@@ -7,6 +7,7 @@ placement puzzles that can be modeled using the classes from the cnpp module.
 """
 
 from collections import defaultdict
+import copy
 import itertools
 
 import heapdict
@@ -14,34 +15,47 @@ import heapdict
 from . import cnpp
 
 
-def solve(puzzle: cnpp.Puzzle):
+def solve(puzzle: cnpp.Puzzle) -> cnpp.Puzzle:
     """
-    Solves the input number-placement puzzle. Modifies the
-    input puzzle instance.
+    Solves the input number-placement puzzle. Does not modify the input puzzle.
     """
 
-    group_priority_queue = heapdict.heapdict()
-    for group in puzzle.iter_groups():
-        group_priority_queue[group] = 0
+    def _solve(_puzzle: cnpp.Puzzle, make_copy: bool) -> cnpp.PuzzleState:
+        group_priority_queue = heapdict.heapdict()
+        for group in _puzzle.iter_groups():
+            group_priority_queue[group] = 0
 
-    while len(group_priority_queue) > 0:
-        (group, _) = group_priority_queue.popitem()
+        while len(group_priority_queue) > 0:
+            (group, _) = group_priority_queue.popitem()
 
-        changed_cells = process_cell_group(puzzle, group)
-        groups_changed = defaultdict(int)
+            changed_cells = process_cell_group(_puzzle, group)
+            groups_changed = defaultdict(int)
 
-        for cell in changed_cells:
-            for changed_group in puzzle.get_groups(cell):
-                groups_changed[changed_group] += 1
-        for changed_group, times_changed in groups_changed.items():
-            if changed_group not in group_priority_queue:
-                group_priority_queue[changed_group] = 0
-            group_priority_queue[changed_group] -= times_changed
+            # Find the groups that were changed
+            for cell in changed_cells:
+                for changed_group in _puzzle.get_groups(cell):
+                    groups_changed[changed_group] += 1
 
-    if not puzzle.is_solved():
-        puzzle
+            # Update priorities for groups
+            for changed_group, times_changed in groups_changed.items():
+                if changed_group not in group_priority_queue:
+                    group_priority_queue[changed_group] = 0
+                group_priority_queue[changed_group] -= times_changed
 
-    return True
+            state = _puzzle.state()
+        
+
+    _puzzle = copy.deepcopy(puzzle)
+    result = _solve(_puzzle, True)
+    if result == cnpp.PuzzleState.Unsolved:
+        # make a copy
+        # make a guess
+        # recurse
+        # Check guess, should be guarenteed solved or conflict
+        # conflict? make a different copy and a different guess
+        pass
+
+    return puzzle
 
 
 def process_cell_group(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
