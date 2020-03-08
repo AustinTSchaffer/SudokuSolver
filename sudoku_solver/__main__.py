@@ -58,7 +58,20 @@ EXTREME = [
     [5, 0, 0, 0, 0, 0, 0, 0, 0],
 ]
 
+AMBIGUOUS = [
+    [0] * 9,
+    [0] * 9,
+    [0] * 9,
+    [0] * 9,
+    ([0] * 4) + [1] + ([0] * 4),
+    [0] * 9,
+    [0] * 9,
+    [0] * 9,
+    [0] * 9,
+]
+
 SAMPLE_STARTING_POSITIONS = [
+    ("Ambiguous", AMBIGUOUS),
     ("Beginner", BEGINNER),
     ("Easy", EASY),
     ("Medium", MEDIUM),
