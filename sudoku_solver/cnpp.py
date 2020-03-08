@@ -64,7 +64,7 @@ class Cell(object):
         """
         Returns the set of potential values for the cell.
         """
-        return self._potential_values
+        return set(self.iter_potential_values())
 
     def iter_potential_values(self) -> Iterable[Hashable]:
         return iter(self._potential_values)
@@ -114,23 +114,35 @@ class Group(set):
 
     def solved_cells(self) -> Set[Cell]:
         """
-        Returns a set of the solved cells within the puzzle.
+        Returns a set of the solved cells within the group.
         """
-        return {
+        return set(self.iter_solved_cells())
+
+    def iter_solved_cells(self) -> Iterable[Cell]:
+        """
+        Returns an iterator over the solved cells within the group.
+        """
+        return (
             cell
             for cell in self
             if cell.value()
-        }
+        )
 
     def unsolved_cells(self) -> Set[Cell]:
         """
         Returns a set of the unsolved cells within the group.
         """
-        return {
+        return set(self.iter_unsolved_cells())
+
+    def iter_unsolved_cells(self) -> Iterable[Cell]:
+        """
+        Returns an iterator over the unsolved cells within the group.
+        """
+        return (
             cell
             for cell in self
             if not cell.value()
-        }
+        )
 
     def __iter__(self) -> Iterable[Cell]:
         return super().__iter__()
