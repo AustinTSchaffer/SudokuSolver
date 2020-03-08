@@ -74,15 +74,14 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
     if _puzzle_state != cnpp.PuzzleState.Unsolved:
         return _puzzle, _puzzle_state
 
-    # If the deterministic puzzle-solving functions were not able to fully solve the
-    # puzzle, then the solver needs to make a guess.
+    # If the deterministic puzzle-solving functions were not able to fully 
+    # solve the puzzle, then the solver needs to make a guess. Save a copy
+    # of the puzzle in case the guess turns out to cause a conflict.
 
-    # Save a copy of the puzzle in case the guess turns out to cause a
-    # conflict.
     __puzzle = copy.deepcopy(_puzzle)
 
     # Make a guess.
-    cell_with_a_guess = next(iter(_puzzle.unsolved_cells()))
+    cell_with_a_guess = next(_puzzle.iter_unsolved_cells())
     guess = next(iter(cell_with_a_guess.potential_values()))
     cell_with_a_guess.set_value(guess)
 
@@ -93,12 +92,12 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
     if _puzzle_state == cnpp.PuzzleState.Conflict:
         # Rollback `_puzzle` variable to the saved copy. Remove guess from
         # the cell's potential values.
+        rollback_successful = False
 
         _puzzle = __puzzle
         del __puzzle
 
-        rollback_successful = False
-        for cell in _puzzle.unsolved_cells():
+        for cell in _puzzle.iter_unsolved_cells():
             if cell == cell_with_a_guess:
                 rollback_successful = True
                 cell.remove_value(guess)
@@ -134,10 +133,10 @@ def clear_solved_cells(group: cnpp.Group) -> set:
     solved_values = {
         cell.value()
         for cell in
-        group.solved_cells()
+        group.iter_solved_cells()
     }
 
-    for cell in group.unsolved_cells():
+    for cell in group.iter_unsolved_cells():
         if cell.remove_values(solved_values):
             cells_changed.add(cell)
 
@@ -156,11 +155,11 @@ def last_remaining_cell(group: cnpp.Group) -> set:
     solved_values = {
         cell.value()
         for cell in
-        group.solved_cells()
+        group.iter_solved_cells()
     }
 
     pencil_marking_map = defaultdict(set)
-    for cell in group.unsolved_cells():
+    for cell in group.iter_unsolved_cells():
         for value in cell.iter_potential_values():
             pencil_marking_map[value].add(cell)
 
@@ -207,7 +206,7 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
     # part of a naked triple.
 
     applicable_cells = set()
-    for cell in group.unsolved_cells():
+    for cell in group.iter_unsolved_cells():
         if len(cell.potential_values()) <= number:
             applicable_cells.add(cell)
 
@@ -223,7 +222,7 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
         pencil_markings = {
             pencil_marking
             for cell in combination
-            for pencil_marking in cell.potential_values()
+            for pencil_marking in cell.iter_potential_values()
         }
 
         if len(pencil_markings) == number:
@@ -232,7 +231,7 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
             # equals the number of cells in the combination, meaning those
             # symbols cannot exist in any of the other cells in this group.
 
-            for cell in group.unsolved_cells():
+            for cell in group.iter_unsolved_cells():
                 if cell not in combination:
                     if cell.remove_values(pencil_markings):
                         changed_cells.add(cell)
