@@ -34,7 +34,7 @@ class Cell(object):
         )
 
         self._value = value
-        self._potential_values = set(potential_values or ())
+        self._potential_values = set(potential_values or ())  # type: Set[Hashable]
 
     def value(self) -> Optional[Hashable]:
         """
@@ -168,8 +168,8 @@ class Puzzle(object):
     """
 
     def __init__(self, groups: Collection[Group]):
-        self._groups = set()
-        self._cells = set()
+        self._groups = set()  # type: Set[Group]
+        self._cells = set()  # type: Set[Cell]
         self._cells_to_group_map = defaultdict(set)
 
         for group in groups:
