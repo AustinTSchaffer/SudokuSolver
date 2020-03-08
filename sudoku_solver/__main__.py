@@ -58,7 +58,7 @@ EXTREME = [
     [5, 0, 0, 0, 0, 0, 0, 0, 0],
 ]
 
-AMBIGUOUS = [
+AMBIGUOUS_1 = [
     [0] * 9,
     [0] * 9,
     [0] * 9,
@@ -70,13 +70,39 @@ AMBIGUOUS = [
     [0] * 9,
 ]
 
+AMBIGUOUS_2 = [
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, ],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, ],
+    [0, 0, 0, 0, 0, 0, 1, 0, 0, ],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, ],
+    [0, 0, 0, 0, 1, 0, 0, 0, 0, ],
+    [0, 0, 0, 0, 0, 0, 0, 1, 0, ],
+    [0, 0, 1, 0, 0, 0, 0, 0, 0, ],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, ],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, ],
+]
+
+CONFLICT = [
+    [0, 0, 9, 0, 0, 7, 0, 4, 0],
+    [0, 7, 1, 0, 2, 0, 0, 0, 5],
+    [0, 4, 0, 0, 0, 0, 0, 3, 9],
+    [0, 0, 0, 0, 0, 8, 0, 0, 0],
+    [0, 0, 0, 4, 6, 0, 0, 0, 0],
+    [0, 0, 2, 1, 9, 0, 8, 0, 0],
+    [0, 6, 0, 0, 0, 0, 4, 0, 0],
+    [0, 9, 0, 2, 8, 6, 5, 0, 0],
+    [5, 0, 0, 0, 0, 0, 0, 1, 0],
+]
+
 SAMPLE_STARTING_POSITIONS = [
-    ("Ambiguous", AMBIGUOUS),
+    ("Ambiguous", AMBIGUOUS_1),
+    ("Ambiguous", AMBIGUOUS_2),
     ("Beginner", BEGINNER),
     ("Easy", EASY),
     ("Medium", MEDIUM),
     ("Hard", HARD),
     ("Extreme", EXTREME),
+    ("Extreme plus Conflict", CONFLICT),
 ]
 
 import sudoku_solver
@@ -90,7 +116,7 @@ def main():
 
         sudoku, state = sudoku_solver.cnpp_solver.solve(sudoku)
 
-        print(f"Puzzle State: {state}")
+        print(f"Puzzle State: {state.name}")
         print(sudoku)
 
 if __name__ == "__main__":
