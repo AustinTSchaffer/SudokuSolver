@@ -192,6 +192,7 @@ class Puzzle(object):
         self._groups = set()  # type: Set[Group]
         self._cells = set()  # type: Set[Cell]
         self._cells_to_group_map = defaultdict(set)
+        self._location_to_cell_map = {}
 
         for group in groups:
             assert group not in self._groups
@@ -199,6 +200,9 @@ class Puzzle(object):
             for cell in group:
                 self._cells.add(cell)
                 self._cells_to_group_map[cell].add(group)
+
+        for cell in self._cells:
+            self._location_to_cell_map[cell.location()] = cell
 
     def state(self) -> PuzzleState:
         """
@@ -275,3 +279,9 @@ class Puzzle(object):
             self._cells
             if cell.value()
         )
+
+    def get_cell(self, location: Hashable) -> Cell:
+        """
+        Retrieves a single cell given a location.
+        """
+        return self._location_to_cell_map[location]
