@@ -75,8 +75,9 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
         return _puzzle, _puzzle_state
 
     # If the deterministic puzzle-solving functions were not able to fully
-    # solve the puzzle, then the solver needs to make a guess. Make a copy
-    # of the puzzle in case the guess turns out to cause a conflict.
+    # solve the puzzle or determine if it has a conflict, then the solver
+    # needs to make a guess. Make a copy of the puzzle in case the guess turns
+    # out to cause a conflict.
 
     _modified_puzzle = copy.deepcopy(_puzzle)
 
