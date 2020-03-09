@@ -6,26 +6,15 @@ from . import cnpp
 
 
 class SudokuCell(cnpp.Cell):
-    def __init__(self, value: Optional[int], location: tuple,):
+    def __init__(self, location: tuple, value: int = None):
         super().__init__(
+            location=location,
             value=value,
             potential_values=(
                 [] if value else
                 [v+1 for v in range(9)]
             ),
         )
-
-        self._location = location
-
-    def __eq__(self, other):
-        return (
-            isinstance(other, SudokuCell) and
-            super().__eq__(other) and
-            self._location == other._location
-        )
-
-    def __hash__(self):
-        return super().__hash__()
 
 
 class SudokuPuzzle(cnpp.Puzzle):
@@ -48,8 +37,8 @@ class SudokuPuzzle(cnpp.Puzzle):
             assert len(row) == 9
             for col_index, value in enumerate(row):
                 cell = SudokuCell(
-                    value=value,
                     location=(row_index, col_index),
+                    value=value,
                 )
 
                 box_index = (row_index // 3, col_index // 3)

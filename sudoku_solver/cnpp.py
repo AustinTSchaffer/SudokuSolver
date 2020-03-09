@@ -18,21 +18,24 @@ class Cell(object):
     potential values if the exact value of the cell is uncertain.
     """
 
-    def __init__(self, value: Hashable = None, potential_values: Collection[Hashable] = None):
+    def __init__(self, location: Hashable, value: Hashable = None, potential_values: Collection[Hashable] = None):
         r"""
-        Initializes a cell, accepting either a single value or a collection of
-        potential values.
+        Initializes a cell, accepting a location and either a single value or a
+        collection of potential values. Locations should uniquely identify 
+        cells within a puzzle.
 
         All potential values should be hashable and truth-y. The collection of
         symbols used by a puzzle will most likely be integers. If the puzzle
         uses 0 as a valid value, the potential values should be specified as
         strings instead of integers.
         """
+
         assert bool(value) ^ bool(potential_values), (
             "A Cell must have either a single value or a collection of \
                 potential values. At least one must be truthy, but not both."
         )
 
+        self._location = location
         self._value = value
         self._potential_values = set(potential_values or ())  # type: Set[Hashable]
 
@@ -51,6 +54,9 @@ class Cell(object):
             return self._value
 
         return None
+
+    def location(self) -> Hashable:
+        return self._location
 
     def set_value(self, value: Hashable):
         """
@@ -93,12 +99,13 @@ class Cell(object):
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, Cell) and
-            self.value() is not None and
-            self.value() == other.value()
+            self._location == other._location and
+            self._value == other._value and
+            self._potential_values == other._potential_values
         )
 
     def __hash__(self):
-        return id(self)
+        return hash(self._location)
 
 
 class Group(set):
