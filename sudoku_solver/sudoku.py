@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Collection
 from collections import defaultdict
 import os
 
@@ -6,11 +6,13 @@ from . import cnpp
 
 
 class SudokuCell(cnpp.Cell):
-    def __init__(self, location: tuple, value: int = None):
+    def __init__(self, location: tuple, value: int = None,
+                 potential_values: Collection[int] = None):
         super().__init__(
             location=location,
             value=value,
             potential_values=(
+                potential_values if potential_values else
                 [] if value else
                 [v+1 for v in range(9)]
             ),
