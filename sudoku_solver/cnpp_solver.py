@@ -86,23 +86,22 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
     guess = next(cell_with_a_guess.iter_potential_values())
     cell_with_a_guess.set_value(guess)
 
-    # Attempt to solve using the variant of solve that doesn't create
-    # another copy.
-    _puzzle, _puzzle_state = _solve(_modified_puzzle)
+    # Attempt to solve using the recursive variant of solve.
+    _modified_puzzle, _puzzle_state = solve(_modified_puzzle)
 
     if _puzzle_state == cnpp.PuzzleState.Conflict:
         # The modified puzzle could not be solved, which means the guess cannot
         # be a possible value for the cell. Remove guess from the cell's
         # potential values in the original copy.
+
+        del _modified_puzzle
+
         original_cell = _puzzle.get_cell(cell_with_a_guess.location())
         original_cell.remove_value(guess)
 
-    else:
-        # The guess was successful?
-        _puzzle = _modified_puzzle
+        return solve(_puzzle)
 
-    return solve(_puzzle)
-
+    return _modified_puzzle, _puzzle_state
 
 def process_cell_group(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
     if not any(group.unsolved_cells()):
