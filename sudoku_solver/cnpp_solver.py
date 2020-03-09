@@ -75,34 +75,31 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
         return _puzzle, _puzzle_state
 
     # If the deterministic puzzle-solving functions were not able to fully 
-    # solve the puzzle, then the solver needs to make a guess. Save a copy
+    # solve the puzzle, then the solver needs to make a guess. Make a copy
     # of the puzzle in case the guess turns out to cause a conflict.
 
-    __puzzle = copy.deepcopy(_puzzle)
+    _modified_puzzle = copy.deepcopy(_puzzle)
 
-    # Make a guess.
-    cell_with_a_guess = next(_puzzle.iter_unsolved_cells())
-    guess = next(iter(cell_with_a_guess.potential_values()))
+    # Choose an arbitrary cell and make a guess by choosing the first available
+    # potential value within that cell.
+    cell_with_a_guess = next(_modified_puzzle.iter_unsolved_cells())
+    guess = next(cell_with_a_guess.iter_potential_values())
     cell_with_a_guess.set_value(guess)
 
     # Attempt to solve using the variant of solve that doesn't create
     # another copy.
-    _puzzle, _puzzle_state = _solve(_puzzle)
+    _puzzle, _puzzle_state = _solve(_modified_puzzle)
 
     if _puzzle_state == cnpp.PuzzleState.Conflict:
-        # Rollback `_puzzle` variable to the saved copy. Remove guess from
-        # the cell's potential values.
-        rollback_successful = False
+        # The modified puzzle could not be solved, which means the guess cannot
+        # be a possible value for the cell. Remove guess from the cell's 
+        # potential values in the original copy.
+        original_cell = _puzzle.get_cell(cell_with_a_guess.location())
+        original_cell.remove_value(guess)
 
-        _puzzle = __puzzle
-        del __puzzle
-
-        for cell in _puzzle.iter_unsolved_cells():
-            if cell == cell_with_a_guess:
-                rollback_successful = True
-                cell.remove_value(guess)
-
-        assert rollback_successful, "Concurrency error. Cell chosen for guess is no longer unsolved."
+    else:
+        # The guess was successful?
+        _puzzle = _modified_puzzle
 
     return solve(_puzzle)
 
