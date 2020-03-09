@@ -21,7 +21,7 @@ class Cell(object):
     def __init__(self, location: Hashable, value: Hashable = None, potential_values: Collection[Hashable] = None):
         r"""
         Initializes a cell, accepting a location and either a single value or a
-        collection of potential values. Locations should uniquely identify 
+        collection of potential values. Locations should uniquely identify
         cells within a puzzle.
 
         All potential values should be hashable and truth-y. The collection of
@@ -209,7 +209,7 @@ class Puzzle(object):
         - Returns `PuzzleState.Solved` if all of the cells in this puzzle have
         a value and there are no value conflicts.
         - Returns `PuzzleState.Conflict` if there are any groups that contain
-        a duplicate value or if there are any cells that have 
+        a duplicate value or if there are any cells that have
         - Returns `PuzzleState.Unsolved` otherwise.
         """
         for cell in self._cells:

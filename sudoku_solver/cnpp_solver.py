@@ -74,7 +74,7 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
     if _puzzle_state != cnpp.PuzzleState.Unsolved:
         return _puzzle, _puzzle_state
 
-    # If the deterministic puzzle-solving functions were not able to fully 
+    # If the deterministic puzzle-solving functions were not able to fully
     # solve the puzzle, then the solver needs to make a guess. Make a copy
     # of the puzzle in case the guess turns out to cause a conflict.
 
@@ -92,7 +92,7 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
 
     if _puzzle_state == cnpp.PuzzleState.Conflict:
         # The modified puzzle could not be solved, which means the guess cannot
-        # be a possible value for the cell. Remove guess from the cell's 
+        # be a possible value for the cell. Remove guess from the cell's
         # potential values in the original copy.
         original_cell = _puzzle.get_cell(cell_with_a_guess.location())
         original_cell.remove_value(guess)
@@ -238,7 +238,7 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
 
 def check_hidden_conjugates(group: cnpp.Group) -> set:
     """
-    Checks for hidden conjugate pairs, triples, quads, etc in the specified 
+    Checks for hidden conjugate pairs, triples, quads, etc in the specified
     group. Checks for all sizes of conjugate groups between "2" and "one more
     than half the number of cells in the group, rounded down".
     """
