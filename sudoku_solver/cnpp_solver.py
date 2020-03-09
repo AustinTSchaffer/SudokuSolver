@@ -81,9 +81,18 @@ def solve(puzzle: cnpp.Puzzle) -> (cnpp.Puzzle, cnpp.PuzzleState):
 
     _modified_puzzle = copy.deepcopy(_puzzle)
 
-    # Choose an arbitrary cell and make a guess by choosing the first available
-    # potential value within that cell.
-    cell_with_a_guess = next(_modified_puzzle.iter_unsolved_cells())
+    # Choose a cell that has the fewest number of potential values and make a
+    # guess by choosing the first available potential value within that cell.
+    cell_with_a_guess = None
+    for cell in _modified_puzzle.iter_unsolved_cells():
+        should_swap_cell = (
+            not cell_with_a_guess or
+            len(cell.potential_values()) < len(cell_with_a_guess.potential_values())
+        )
+
+        if should_swap_cell:
+            cell_with_a_guess = cell
+
     guess = next(cell_with_a_guess.iter_potential_values())
     cell_with_a_guess.set_value(guess)
 
