@@ -5,10 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            "name": "Python: Sample 1",
             "type": "python",
             "request": "launch",
-            "module": "sudoku_solver"
+            "program": "${workspaceFolder}/samples/examples_with_inline_data.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Sample 2",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/samples/1_million_puzzle_execution.py",
+            "console": "integratedTerminal"
         }
     ]
 }
