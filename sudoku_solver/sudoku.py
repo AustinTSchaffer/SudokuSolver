@@ -82,9 +82,12 @@ class SudokuPuzzle(cnpp.Puzzle):
 
         return cls.init_from_2d_list(
             [
-                int(data[(index*9):(1+index)*9])
-                for index in
-                range(9)
+                [
+                    int(char)
+                    for char in
+                    data[(index*9):(1+index)*9]
+                ]
+                for index in range(9)
             ]
         )
 
