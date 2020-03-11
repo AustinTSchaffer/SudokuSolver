@@ -61,27 +61,27 @@ EXTREME = [
 ]
 
 AMBIGUOUS_1 = [
-    '000000000',
-    '000000000',
-    '000000000',
-    '000000000',
-    '000010000',
-    '000000000',
-    '000000000',
-    '000000000',
-    '000000000',
+    "000000000",
+    "000000000",
+    "000000000",
+    "000000000",
+    "000010000",
+    "000000000",
+    "000000000",
+    "000000000",
+    "000000000",
 ]
 
 AMBIGUOUS_2 = [
-    '100000000',
-    '000100000',
-    '000000100',
-    '010000000',
-    '000010000',
-    '000000010',
-    '001000000',
-    '000001000',
-    '000000001',
+    "100000000",
+    "000100000",
+    "000000100",
+    "010000000",
+    "000010000",
+    "000000010",
+    "001000000",
+    "000001000",
+    "000000001",
 ]
 
 CONFLICT = [
@@ -139,10 +139,10 @@ def main():
         sudoku = sudoku_solver.sudoku.SudokuPuzzle.init_from_2d_list(puzzle_data)
 
         if print_init_config:
-            print("{} Starting Position:".format(description))
+            print(f"{description} Starting Position:")
             print(sudoku)
         else:
-            print('Solving: {}'.format(description))
+            print(f"Solving: {description}")
 
         sudoku, state = sudoku_solver.cnpp_solver.solve(sudoku)
 
