@@ -20,15 +20,19 @@ class SudokuCell(cnpp.Cell):
 
 
 class SudokuPuzzle(cnpp.Puzzle):
-    def __init__(self, grid: List[List[int]]):
+
+    @classmethod
+    def init_from_2d_list(cls, grid):
         r"""
 
-        Initializes a model of a Sudoku puzzle from a 2D list of integers. This
-        initializer assumes that D1 corresponds to row index and D2 corresponds
-        to column index.
+        Initializes a model of a Sudoku puzzle from a 2D list. This initializer
+        assumes that D1 corresponds to row index and D2 corresponds to column
+        index.
 
-        Empty cells can be specified with any false-y value. Filled cells must
-        be an integer 1 through 9.
+        Empty cells can be specified with any false-y value in a specified
+        index. Filled cells must be an integer 1 through 9. Cells can be
+        specified with multiple values if they should be initialized with pencil
+        markings.
 
         """
 
@@ -38,9 +42,18 @@ class SudokuPuzzle(cnpp.Puzzle):
         for row_index, row in enumerate(grid):
             assert len(row) == 9
             for col_index, value in enumerate(row):
-                cell = SudokuCell(
-                    location=(row_index, col_index),
-                    value=value,
+                loc = (row_index, col_index)
+                cell = (
+                    # Empty cell
+                    SudokuCell(loc, value=0)
+                    if not value or not int(value) else
+
+                    # Cell with a specific value
+                    SudokuCell(loc, value=int(value))
+                    if len(str(value)) == 1 else
+
+                    # Cell with pencil markings.
+                    SudokuCell(loc, potential_values=[int(v) for v in str(value)])
                 )
 
                 box_index = (row_index // 3, col_index // 3)
@@ -49,10 +62,31 @@ class SudokuPuzzle(cnpp.Puzzle):
                 cell_groups[("col", col_index)].add(cell)
                 cell_groups[("box", box_index)].add(cell)
 
-        super().__init__([
-            cnpp.Group(g)
-            for g in cell_groups.values()
-        ])
+        return cls(
+            [
+                cnpp.Group(g)
+                for g in cell_groups.values()
+            ]
+        )
+
+    @classmethod
+    def init_from_1d_list(cls, data: list):
+        r"""
+        Initializes a model of a Sudoku puzzle from a 1D list or string of
+        integers. This initializer assumes that the puzzle is listed out as
+        concatenated rows.
+
+        Empty cells can be specified with any false-y value. Filled cells must
+        be an integer 1 through 9.
+        """
+
+        return cls.init_from_2d_list(
+            [
+                int(data[(index*9):(1+index)*9])
+                for index in
+                range(9)
+            ]
+        )
 
     def __str__(self) -> str:
         output = [
@@ -60,9 +94,8 @@ class SudokuPuzzle(cnpp.Puzzle):
             for _ in range(9)
         ]
 
-        for cell in self._cells:  # type: SudokuCell
-            if cell.value():
-                output[cell._location[0]][cell._location[1]] = cell.value()
+        for cell in self.solved_cells():
+            output[cell._location[0]][cell._location[1]] = cell.value()
 
         str_output = ""
         for row in output:
