@@ -23,11 +23,20 @@ def solve_sudoku(input_data):
     return (index, puzzle, state, completed_puzzle)
 
 def main():
-    num_cores = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(num_cores - 2)
+    try:
+        num_cores = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(num_cores - 2)
+        run_in_parallel = True
+    except:
+        run_in_parallel = False
 
-    for index, puzzle, result, completed_puzzle in pool.imap_unordered(solve_sudoku, iterate_through_puzzles()):
-        print(f'Result {result} Puzzle Index: {index} Initial configuration: {puzzle}')
+    if run_in_parallel:
+        for index, puzzle, result, completed_puzzle in pool.imap_unordered(solve_sudoku, iterate_through_puzzles()):
+            print(f'Result {result} Puzzle Index: {index} Initial configuration: {puzzle}')
+    else:
+        for data in iterate_through_puzzles():
+            index, puzzle, result, completed_puzzle = solve_sudoku(data)
+            print(f'Result {result} Puzzle Index: {index} Initial configuration: {puzzle}')
 
     print('Done')
 
