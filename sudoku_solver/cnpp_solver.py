@@ -140,16 +140,23 @@ def erase_pencil_markings(puzzle: cnpp.Puzzle) -> set:
     """
 
     cells_changed = set()
+    solved_cells = puzzle.iter_solved_cells()
 
-    any_cells_changed = True
-    while any_cells_changed:
-        any_cells_changed = False
-        for solved_cell in puzzle.iter_solved_cells():
+    any_solved_cells = True
+    while any_solved_cells:
+        any_solved_cells = False
+        newly_solved_cells = []
+
+        for solved_cell in solved_cells:
             for group in puzzle.get_groups(solved_cell):
                 for unsolved_cell in group.iter_unsolved_cells():
                     if unsolved_cell.remove_value(solved_cell.value()):
-                        any_cells_changed = True
                         cells_changed.add(unsolved_cell)
+                        if unsolved_cell.value():
+                            any_solved_cells = True
+                            newly_solved_cells.append(unsolved_cell)
+
+        solved_cells = newly_solved_cells
 
     return cells_changed
 
