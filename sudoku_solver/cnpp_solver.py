@@ -117,34 +117,39 @@ def process_cell_group(puzzle: cnpp.Puzzle, group: cnpp.Group) -> set:
     if not any(group.unsolved_cells()):
         return set()
 
-    return (
-        clear_solved_cells(group) or
-        last_remaining_cell(group) or
-        check_conjugates(group) or
-        check_hidden_conjugates(group) or
-        check_intersections(puzzle, group) or
-        set()
-    )
+    strategies = [
+        ('Erase Pencil Markings', lambda: erase_pencil_markings(puzzle)),
+        ('Last Remaining Cell', lambda: last_remaining_cell(group)),
+        ('Conjugates', lambda: check_conjugates(group)),
+        ('Hidden conjugates', lambda: check_hidden_conjugates(group)),
+        ('Intersections', lambda: check_intersections(puzzle, group)),
+    ]
 
+    for name, _callable in strategies:
+        cells_changed = _callable()
+        if any(cells_changed):
+            return cells_changed
 
-def clear_solved_cells(group: cnpp.Group) -> set:
+    return set()
+
+def erase_pencil_markings(puzzle: cnpp.Puzzle) -> set:
     """
     This function models the obvious strategy, where pencil markings
-    are erased from all of the cells in a group if the group already
-    contains a solved cell that contains the value.
+    are erased from all of the cells in a puzzle depending on whether
+    any cells .
     """
 
     cells_changed = set()
 
-    solved_values = {
-        cell.value()
-        for cell in
-        group.iter_solved_cells()
-    }
-
-    for cell in group.iter_unsolved_cells():
-        if cell.remove_values(solved_values):
-            cells_changed.add(cell)
+    any_cells_changed = True
+    while any_cells_changed:
+        any_cells_changed = False
+        for solved_cell in puzzle.iter_solved_cells():
+            for group in puzzle.get_groups(solved_cell):
+                for unsolved_cell in group.iter_unsolved_cells():
+                    if unsolved_cell.remove_value(solved_cell.value()):
+                        any_cells_changed = True
+                        cells_changed.add(unsolved_cell)
 
     return cells_changed
 
