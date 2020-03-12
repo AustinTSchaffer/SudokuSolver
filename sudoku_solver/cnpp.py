@@ -107,6 +107,15 @@ class Cell(object):
     def __hash__(self):
         return hash(self._location)
 
+    def __repr__(self) -> str:
+        ctor_name = self.__class__.__name__
+        if self._value:
+            return f'{ctor_name}({self._location}, value={self._value})'
+
+        return f'{ctor_name}({self._location}, potential_values={self._potential_values})'
+
+    def __str__(self) -> str:
+        return repr(self)
 
 class Group(set):
     """
