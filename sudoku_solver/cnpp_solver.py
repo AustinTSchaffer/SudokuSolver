@@ -247,6 +247,11 @@ def check_conjugate(number: int, group: cnpp.Group) -> set:
                     if cell.remove_values(pencil_markings):
                         changed_cells.add(cell)
 
+            # Returning early, because the state of "applicable_cells" may no
+            # longer accurately reflect the state of the group.
+            if any(changed_cells):
+                return changed_cells
+
     return changed_cells
 
 
@@ -310,6 +315,11 @@ def check_hidden_conjugate(number: int, group: cnpp.Group) -> set:
                 values_to_remove = cell.potential_values() - value_combination
                 if cell.remove_values(values_to_remove):
                     changed_cells.add(cell)
+
+            # Returning early, because the state of "applicable_values" may no
+            # longer accurately reflect the state of the group.
+            if any(changed_cells):
+                return changed_cells
 
     return changed_cells
 
