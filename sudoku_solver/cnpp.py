@@ -18,7 +18,7 @@ class Cell(object):
     potential values if the exact value of the cell is uncertain.
     """
 
-    def __init__(self, location: Hashable, value: Hashable = None, potential_values: Collection[Hashable] = None):
+    def __init__(self, location: tuple, value: Hashable = None, potential_values: Collection[Hashable] = None):
         r"""
         Initializes a cell, accepting a location and either a single value or a
         collection of potential values. Locations should uniquely identify
@@ -55,7 +55,7 @@ class Cell(object):
 
         return None
 
-    def location(self) -> Hashable:
+    def location(self) -> tuple:
         return self._location
 
     def set_value(self, value: Hashable):
