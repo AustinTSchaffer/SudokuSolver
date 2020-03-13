@@ -1,6 +1,5 @@
 from typing import Optional, List, Collection
 from collections import defaultdict
-import os
 
 from . import cnpp
 
@@ -90,21 +89,3 @@ class SudokuPuzzle(cnpp.Puzzle):
                 for index in range(9)
             ]
         )
-
-    def __str__(self) -> str:
-        output = [
-            ['?' for _ in range(9)]
-            for _ in range(9)
-        ]
-
-        for cell in self.solved_cells():
-            output[cell._location[0]][cell._location[1]] = cell.value()
-
-        str_output = ""
-        for row in output:
-            for value in row:
-                str_output += str(value)
-                str_output += " "
-            str_output += os.linesep
-
-        return str_output

@@ -8,6 +8,7 @@ there are other variants of the game that follow the same rules.
 
 from collections import defaultdict
 import enum
+import os
 from typing import Optional, Collection, Hashable, Set, Iterable, DefaultDict
 
 
@@ -293,4 +294,38 @@ class Puzzle(object):
         """
         Retrieves a single cell given a location.
         """
-        return self._location_to_cell_map[location]
+        return self._location_to_cell_map.get(location, None)
+
+    def __str__(self) -> str:
+        max_row = 0
+        max_col = 0
+        for cell in self._cells:
+            location = cell.location()
+            if location[0] > max_row:
+                max_row = location[0]
+            if location[1] > max_col:
+                max_col = location[1]
+
+        output = []
+        for row_index in range(max_row + 1):
+            new_row = []
+            for col_index in range(max_col + 1):
+                cell = self.get_cell((row_index, col_index))
+                new_row.append(
+                    ' '
+                    if not cell else
+                    '?'
+                    if not cell.value() else
+                    str(cell.value())
+                )
+
+            output.append(new_row)
+
+        str_output = ""
+        for row in output:
+            for value in row:
+                str_output += str(value)
+                str_output += " "
+            str_output += os.linesep
+
+        return str_output
