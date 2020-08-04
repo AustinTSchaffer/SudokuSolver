@@ -7,13 +7,13 @@ follow the same rules.
 """
 
 from sudoku_solver import (
-    cnpp,
-    cnpp_solver,
-    sudoku,
+	cnpp,
+	cnpp_solver,
+	sudoku,
 )
 
 __all__ = [
-    'cnpp',
-    'cnpp_solver',
-    'sudoku',
+	'cnpp',
+	'cnpp_solver',
+	'sudoku',
 ]
